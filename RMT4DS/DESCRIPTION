@@ -1,7 +1,8 @@
 Package: RMT4DS
 Title: Computation of Random Matrix Models
 Version: 0.0.1
-Authors: Xiucai Ding <xcading@ucdavis.edu>, Yichen Hu <ethhu@ucdavis.edu>
+Authors: Xiucai Ding <xiucaiding89@gmail.com>, Yichen Hu <ethhu@ucdavis.edu>
+Maintainer: Xiucai Ding <xiucaiding89@gmail.com>
 Description: Functions working with general Marchenko-Pastur distribution and Tracy-Widom, limits and distributions of eigenvalues and generalized components of spiked covariance matrices, estimation of all population eigenvalues of spiked covariance matrix model, test of popluation covariance matrix, matrix denoising for signal-plus-noise model.
 License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
     license
