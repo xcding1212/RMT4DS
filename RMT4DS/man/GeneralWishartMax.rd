@@ -61,4 +61,9 @@ pWishartMax(3.5, eigens, n, p, beta=beta)
 dWishartMax(3.5, eigens, n, p, beta=beta)
 }
 \references{
-    [1] El Karoui, N. (2007). Tracyb
+    [1] El Karoui, N. (2007). Tracy–Widom limit for the largest eigenvalue of a large class of complex sample covariance matrices. The Annals of Probability, 35(2), 663-714.
+    
+    [2] Lee, J. O., & Schnelli, K. (2016). Tracy–Widom distribution for the largest eigenvalue of real sample covariance matrices with general population. The Annals of Applied Probability, 26(6), 3786-3839.
+}
+\author{Xiucai Ding, Yichen Hu}
+\keyword{distribution}
