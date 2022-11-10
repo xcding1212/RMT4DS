@@ -50,4 +50,4 @@ cov_spike(c(10),rep(1,p),n,n/p)
 quadratic(k,diag(p),n/p,c(30))
 }
 \author{Xiucai Ding, Yichen Hu}
-\keyword{limit, distribution}
+\keyword{limit}
