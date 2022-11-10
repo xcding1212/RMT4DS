@@ -2,13 +2,13 @@
 
 
 d2 = function(y1, y2) {
-    (y1+y2-y1*y2)/(y1*y2)*log((y1+y2)/(y1+y2-y1*y2))+ 
+    (y1+y2-y1*y2)/(y1*y2)*log((y1+y2)/(y1+y2-y1*y2))+
         y1*(1-y2)/(y2*(y1+y2))*log(1-y2)+y2*(1-y1)/(y1*(y1+y2))*log(1-y1)
 }
 mu2 = function(y1, y2) 1/2*log((y1+y2-y1*y2)/(y1+y2))-(y1*log(1-y2)+y2*log(1-y1))/(y1+y2)
 sigma2_2 = function(y1, y2) {
     -(2*y1^2*log(1-y2)+2*y2^2*log(1-y1))/(y1+y2)^2-
-        2*log((y1+y2)/(y1+y2-y1*y2))    
+        2*log((y1+y2)/(y1+y2-y1*y2))
 }
 d2_hat = function(y1, y2){
     d2(y1,y2)-y1/(y1+y2)*log(y1/(y1+y2))-y2/(y1+y2)*log(y2/(y1+y2))
@@ -47,7 +47,7 @@ OneSampleCovTest = function(X, mean=NULL, S=NULL){
     mu1 = -1/2*log(1-y)
     sigma1 = -2*log(1-y)-2*y
     z_value = (lrt-p*(1+(1-yN)/yN*log(1-yN))-mu1)/sqrt(sigma1)
-    p_value = pnorm(z_value, lower.tail=FALSE)
+    p_value = stats::pnorm(z_value, lower.tail=FALSE)
     list("p_value"=p_value, "z_value"=z_value, "lrt"=lrt)
 }
 
@@ -61,13 +61,13 @@ TwoSampleCovTest = function(X1, X2, mean=NULL){
     if(!is.null(mean)){
         N1 = n1
         N2 = n2
-        X1 = X1 - tcrossprod(rep(1,n), mean)
-        X2 = X2 - tcrossprod(rep(1,n), mean)
+        X1 = X1 - tcrossprod(rep(1,n1), mean)
+        X2 = X2 - tcrossprod(rep(1,n2), mean)
     } else{
         N1 = n1-1
         N2 = n2-1
-        X1 = X1 - tcrossprod(rep(1,n), colMeans(X1))
-        X2 = X2 - tcrossprod(rep(1,n), colMeans(X2))
+        X1 = X1 - tcrossprod(rep(1,n1), colMeans(X1))
+        X2 = X2 - tcrossprod(rep(1,n2), colMeans(X2))
     }
     N = N1+N2
     c1 = N1/N
@@ -77,12 +77,12 @@ TwoSampleCovTest = function(X1, X2, mean=NULL){
     yN2 = p/N2
     S1 = t(X1)%*%X1/N1
     S2 = t(X2)%*%X2/N2
-    
+
     log_V1_ = log(det(S1%*%solve(S2)))*(N1/2)-
         log(det(c1*S1%*%solve(S2)+c2*diag(rep(1,p))))*(N/2)
     z_value = (-2/N*log_V1_-p*d2(yN1,yN2)-mu2(yN1,yN2))/sqrt(sigma2_2(yN1,yN2))
-    p_value = pnorm(z_value, lower.tail=FALSE)
-    
+    p_value = stats::pnorm(z_value, lower.tail=FALSE)
+
     list("p_value"=p_value, "z_value"=z_value, "lrt"=-2*log_V1_)
 }
 
@@ -107,7 +107,7 @@ MultiSampleCovTest = function(..., input=NULL){
     p = ps[1]
     As = array(0, dim=c(q,p,p))
     for(i in 1:q){
-        As[i,,] = cov(matrices[[i]])*Ns[i]/n0
+        As[i,,] = stats::cov(matrices[[i]])*Ns[i]/n0
     }
     y_n1 = c()
     y_n2 = c()
@@ -129,7 +129,7 @@ MultiSampleCovTest = function(..., input=NULL){
     sigma2 = 0
     mu = 0
     lrt = 0
-    
+
     for(i in 2:q){
         test = test-2/sum(Ns[1:i])*logV1[i-1]-p*d2_hat(y_n1[i-1],y_n2[i-1])
         lrt = lrt-2/sum(Ns[1:i])*logV1[i-1]
@@ -137,6 +137,6 @@ MultiSampleCovTest = function(..., input=NULL){
         sigma2 = sigma2 + sigma2_2(y_n1[i-1],y_n2[i-1])
     }
     z_value = (test-mu)/sqrt(sigma2)
-    p_value = pnorm(z_value, lower.tail=FALSE)
+    p_value = stats::pnorm(z_value, lower.tail=FALSE)
     list("p_value"=p_value, "z_value"=z_value, "lrt"=lrt)
 }

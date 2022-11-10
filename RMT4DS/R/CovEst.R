@@ -17,7 +17,7 @@ MPEstOne = function(X, sigma=1, penalty=FALSE, num=NULL){
     } else {
         ts = seq(start_point, 1, by=(1-start_point)/(num-1))*l_max
     }
-    
+
     # pick v(z_j) and then solve for corresponding z_j
     vt = c()
     xs = seq(0.02, 1, 0.02)
@@ -35,23 +35,23 @@ MPEstOne = function(X, sigma=1, penalty=FALSE, num=NULL){
     v_f = function(z){
         mean(1/(sample_eigen-z))*c-(1-c)/z
     }
-    
+
     zs = c()
     for(i in 1:length(vt)){
         sol = nleqslv::nleqslv(c(1,1), v_F, t=c(Re(vt[i]),Im(vt[i])))$x
         zs = c(zs, sol[1]+sol[2]*1i)
     }
-    
+
     z_t = matrix(0, nrow=length(zs), ncol=length(ts))
     for(j in 1:length(vt)){
         for(k in 1:length(ts)){
             z_t[j,k] = c*ts[k]/(1+v_f(zs[j])*ts[k])
         }
     }
-    
+
     z_t_re = Re(z_t)
     z_t_im = Im(z_t)
-    
+
     const = c()
     for(i in 1:length(vt)){
         const = c(const, 1/v_f(zs[i])+zs[i])
@@ -59,7 +59,7 @@ MPEstOne = function(X, sigma=1, penalty=FALSE, num=NULL){
     # const = 1/vt+zs
     const_re = Re(const)
     const_im = Im(const)
-    
+
     # perform first order penalty
     f.obj = c(1, rep(0, length(ts)))
     if(penalty==TRUE){
@@ -79,7 +79,7 @@ MPEstOne = function(X, sigma=1, penalty=FALSE, num=NULL){
         f.con = rbind(f.con, -c(0,ts))
     }
     f.dir = rep("<=", dim(f.con)[1])
-    
+
     lp_obj = lpSolve::lp("min", f.obj, f.con, f.dir, f.rhs)
     values = lp_obj$solution[2:length(lp_obj$solution)]
     list("xs"=ts, "pdf"=values)
@@ -92,7 +92,7 @@ MPEst = function(X, n=nrow(X), k=1, num=NULL, penalty=FALSE, n_spike=0){
     decompose = svd(t(X1)%*%X1/n)
     u = decompose$u
     d1 = decompose$d
-    
+
     if(n_spike > 0){
         X_spike = X[,1:n_spike]
         X = X[,(n_spike+1):ncol(X)]
@@ -138,11 +138,11 @@ MomentEstOne = function(Y, k=7){
     Gk = diag(n)
     xs = seq(0, rARPACK::svds(t(Y)%*%Y/n, k=1, nu=0, nv=0)$d[1],1/max(d,n))
     V = matrix(0, nrow=k, ncol=length(xs))
-    
+
     k_moment = function(n, d, k, A, Gk){
         sum(diag(Gk%*%A))/(d*choose(n,k))
     }
-    
+
     for(i in 1:k){
         moments = c(moments, k_moment(n, d, i, A, Gk))
         V[i,] = xs^i
@@ -163,12 +163,12 @@ MomentEstOne = function(Y, k=7){
 }
 
 #' @export
-MomentEst = function(X, n, k=1, n_spike=0){
+MomentEst = function(X, n=nrow(X), k=1, n_spike=0){
     X1 = X[sample(1:nrow(X), n, replace=FALSE),]
     decompose = svd(t(X1)%*%X1/n)
     u = decompose$u
     d1 = decompose$d
-    
+
     if(n_spike > 0){
         X_spike = X[,1:n_spike]
         X = X[,(n_spike+1):ncol(X)]
@@ -183,7 +183,7 @@ MomentEst = function(X, n, k=1, n_spike=0){
     pdf = pdf[order(xs, decreasing=FALSE)]
     xs = xs[order(xs, decreasing=FALSE)]
     cdf = cumsum(pdf)
-    
+
     p = ncol(X)
     X1 = X[sample(1:nrow(X), n, replace=FALSE),]
     u = svd(t(X1)%*%X1/n)$u

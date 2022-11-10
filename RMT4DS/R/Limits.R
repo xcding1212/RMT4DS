@@ -7,25 +7,25 @@ MP_vector_dist = function(k, v, ndf=NULL, pdim, svr=ndf/pdim, cov=NULL){
         eigens = decompose$d
         U = decompose$u
         v = t(U)%*%v
-        
+
         if(length(eigens)<1000){
-            d_ = sample(eigens, 1000, replace=TRUE) 
+            d_ = sample(eigens, 1000, replace=TRUE)
         } else{
             d_ = eigens
         }
         gmp = GeneralMarchenkoPasturPar(d=d_, phi=1/svr, m=10*pdim)
         dcdf = diff(gmp$cdf)
         xs = (gmp$Xs[1:(length(gmp$Xs)-1)]+gmp$Xs[2:length(gmp$Xs)])/2
-        
+
         get_quantile = function(x){
             # Our computation is from left to right so x==1 is the special case.
             if(x==1){
-                return(tail(gmp$Xs, 1))
+                return(utils::tail(gmp$Xs, 1))
             }
-            
+
             # The quantile we want will fall into interval [Xs[idx],Xs[idx+1])
-            idx = tail(which(gmp$cdf<=x),1)
-            
+            idx = utils::tail(which(gmp$cdf<=x),1)
+
             # Compute the approximate location between two quantiles
             s0 = x - gmp$cdf[idx]
             # Simple quadratic equation using the root formula.
@@ -56,7 +56,7 @@ cov_spike = function(spikes, eigens, ndf, svr){
     M = length(eigens)
     N = ndf
     phi = M/N
-    X = matrix(rnorm(M*N,sd=sqrt(1/N)),nrow=M)
+    X = matrix(stats::rnorm(M*N,sd=sqrt(1/N)),nrow=M)
     T = diag(sqrt(eigens))
     if(M<N){
         sample_cov = T%*%X%*%t(X)%*%t(T)
@@ -64,15 +64,15 @@ cov_spike = function(spikes, eigens, ndf, svr){
         sample_cov = t(X)%*%diag(eigens)%*%X
     }
     lamdas = eigen(sample_cov)$value
-    
+
     # First we try to get the boundaries of sample spectral density
     d = eigens
     counter = as.data.frame(table(d))
     counter$d = as.numeric(as.character(counter$d))
     counter$Freq = counter$Freq/M
     counter = counter[order(counter$d, decreasing=TRUE),]
-    
-    # The y values of critical points of f are the boundaries of sample spectral density 
+
+    # The y values of critical points of f are the boundaries of sample spectral density
     f = function(x){
         out = -1/x
         for(i in 1:nrow(counter)){
@@ -114,7 +114,7 @@ cov_spike = function(spikes, eigens, ndf, svr){
     if(length(solution)>0){
         edges = c(edges, solution)
     }
-    
+
     # compute spikes
     SPK = c()
     SPK_cov = c()
@@ -122,7 +122,7 @@ cov_spike = function(spikes, eigens, ndf, svr){
         spk = spikes[i]
         idx = which(edges>(-1/spk))[1]
         if(is.na(idx)){
-            if(-1/spk>=(tail(edges,1)+0*N^(-1/3))){
+            if(-1/spk>=(utils::tail(edges,1)+0*N^(-1/3))){
                 SPK = c(SPK, rep(f(-1/spk)))
                 SPK_cov = c(SPK_cov, 2*f(-1/spk)^2/(N-1))
             }
